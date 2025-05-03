@@ -7,33 +7,49 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/TaskDb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/TaskDb?connectTimeout=5000&socketTimeout=30000
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 3456
+      SPRING_DATASOURCE_PASSWORD: "3456"
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     networks:
-      - backend
+      backend:
+        aliases:
+          - app
 
   db:
     image: postgres:15
     container_name: backend_postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 3456
+      POSTGRES_PASSWORD: "3456"
       POSTGRES_DB: TaskDb
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - backend
+      backend:
+        aliases:
+          - database
+          - db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d TaskDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
@@ -41,10 +57,19 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - backend
+      backend:
+        aliases:
+          - redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:
 
 networks:
   backend:
+    driver: bridge
+    name: backend_network
