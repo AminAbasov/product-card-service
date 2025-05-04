@@ -119,44 +119,59 @@ Lombok: Kodun sadələşdirilməsi üçün Lombok istifadə edilmişdir.
 
 DTO Layer: Məlumatların daşınması üçün DTO (Data Transfer Object) qatından istifadə edilmişdir.
 
-Quraşdırma
-1. Layihəni Klonlama
-   Layihəni GitHub-dan klonlaya bilərsiniz:
 
-bash
-git clone https://github.com/amin-abc/backend-developer-task.git
-2. Asılılıqları yükləyin
-   Layihə üçün asılılıqları yükləmək üçün aşağıdakı əmri istifadə edə bilərsiniz:
+Bu layihə Spring Boot ilə yazılmış backend tətbiqidir və Cloudinary, Redis, PostgreSQL texnologiyalarından istifadə edir. Layihəni lokalda və ya Docker ilə işə sala bilərsiniz.
 
-bash
+İlk öncə repozitoriyanı klonlayın:
+
+git clone https://github.com/sizin-repo/backend-app.git
+cd backend-app
+
+Sonra asılılıqları yükləyin:
+
 ./gradlew build
-3. Konfiqurasiya
-   application.properties faylında aşağıdakı konfiqurasiyaları yoxlayın:
 
-properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
-spring.datasource.username=your_username
+Əgər lokal işlədəcəksinizsə, application.properties faylında aşağıdakı konfiqurasiyaların düzgünlüyünü yoxlayın:
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/your_db  
+spring.datasource.username=your_username  
 spring.datasource.password=your_password
 
-spring.redis.host=localhost
-spring.redis.port=6379
+spring.redis.host=localhost  
+spring.redis.port=6379  
 spring.redis.timeout=2000
-4. Redis və PostgreSQL Quraşdırma
-   Redis və PostgreSQL servisinin lokalda işlədiyinə əmin olun. Əgər Redis qurulmayıbsa, aşağıdakı əmri istifadə edərək onu quraşdıra bilərsiniz:
 
-bash
-sudo apt-get install redis-server
-Sonra Redis serverini başladın:
+cloudinary.cloud_name=your_cloud_name  
+cloudinary.api_key=your_api_key  
+cloudinary.api_secret=your_api_secret
 
-bash
+Redis və PostgreSQL lokalda quraşdırılıbsa işlədə bilərsiniz. Əgər Redis qurulmayıbsa aşağıdakı əmr ilə quraşdırın:
+
+sudo apt-get install redis-server  
 redis-server
-PostgreSQL verilənlər bazasını lokalda qurun və lazımi cədvəlləri yaradın:
 
-bash
+PostgreSQL üçün isə bazanı yaradın və struktur faylını tətbiq edin:
+
 psql -U postgres -d your_db < schema.sql
 
-5. Proqramı İşə Salma
-   Tətbiqi başlatmaq üçün aşağıdakı əmri istifadə edə bilərsiniz:
+Əgər bunlarla vaxt itirmək istəmirsinizsə, Docker Compose ilə hər şeyi avtomatik ayağa qaldıra bilərsiniz. Bunun üçün `.env.example` faylını əsas götürərək `.env` faylı yaradın:
 
-bash
+cp .env.example .env
+
+`.env.example` faylının tərkibi belədir:
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name  
+CLOUDINARY_API_KEY=your_api_key  
+CLOUDINARY_API_SECRET=your_api_secret
+
+Sonra Docker ilə tətbiqi işə salın:
+
+docker-compose up --build
+
+Tətbiq http://localhost:9090 ünvanında işləyəcək.
+
+Əgər lokalda işlətmək istəyirsinizsə, bu əmrdən istifadə edin:
+
 ./gradlew bootRun
+
+Əgər sualınız olarsa, bizimlə əlaqə saxlaya bilərsiniz.
